@@ -2,6 +2,7 @@
 from odoo import models, fields, api, _
 from datetime import datetime, date
 import calendar
+import pytz
 
 class TukinCalculation(models.Model):
     _name = 'tukin.calculation'
@@ -89,32 +90,46 @@ class TukinCalculation(models.Model):
             })
 
     def _analyze_employee_attendance(self, employee, start_date, end_date):
-        """Menganalisis keterlambatan dan ketidakhadiran"""
+        """Menganalisis keterlambatan dan ketidakhadiran berdasarkan toleransi PMA 11/2019"""
         res = {
             'tl1': 0, 'tl2': 0, 'tl3': 0, 'tl4': 0,
             'pc1': 0, 'pc2': 0, 'pc3': 0, 'pc4': 0,
             'alpha': 0, 'total_pct': 0.0
         }
         
+        # Ambil seluruh rentang waktu bulan berjalan dari awal hari hingga akhir hari
+        dt_start = datetime.combine(start_date, datetime.min.time())
+        dt_end = datetime.combine(end_date, datetime.max.time())
+
         attendances = self.env['hr.attendance'].search([
             ('employee_id', '=', employee.id),
-            ('check_in', '>=', fields.Datetime.to_datetime(start_date)),
-            ('check_in', '<=', fields.Datetime.to_datetime(end_date))
+            ('check_in', '>=', dt_start),
+            ('check_in', '<=', dt_end)
         ])
 
-        calendar_obj = employee.resource_calendar_id or self.env.company.resource_calendar_id
+        # Kalender kerja pegawai: prioritaskan version_id, lalu resource_id, lalu company
+        calendar_obj = (
+            (employee.current_version_id and employee.current_version_id.resource_calendar_id)
+            or (employee.resource_id and employee.resource_id.calendar_id)
+            or self.company_id.resource_calendar_id
+            or self.env.company.resource_calendar_id
+        )
         if not calendar_obj:
             return res
             
+        # Gunakan zona waktu WITA (Asia/Makassar) institusi secara eksplisit
+        tz_wita = pytz.timezone('Asia/Makassar')
+
         for att in attendances:
             if not att.check_in: continue
-            dayofweek = att.check_in.weekday()
+            # Konversi pasti ke waktu lokal WITA
+            check_in_dt = att.check_in.replace(tzinfo=pytz.UTC).astimezone(tz_wita)
+            dayofweek = check_in_dt.weekday()
             work_hours = calendar_obj.attendance_ids.filtered(lambda x: x.dayofweek == str(dayofweek) and x.day_period == 'morning')
             
             if work_hours:
                 std_in = work_hours[0].hour_from
-                check_in_local = fields.Datetime.context_timestamp(self, att.check_in)
-                check_in_float = check_in_local.hour + check_in_local.minute / 60.0
+                check_in_float = check_in_dt.hour + check_in_dt.minute / 60.0
                 diff_minutes = (check_in_float - std_in) * 60.0
                 if diff_minutes > 1:
                     if diff_minutes <= 30: res['tl1'] += 1; res['total_pct'] += 0.5
@@ -125,8 +140,8 @@ class TukinCalculation(models.Model):
             if att.check_out and work_hours:
                 work_hours_pm = calendar_obj.attendance_ids.filtered(lambda x: x.dayofweek == str(dayofweek) and x.day_period == 'afternoon')
                 std_out = work_hours_pm[-1].hour_to if work_hours_pm else work_hours[0].hour_to
-                check_out_local = fields.Datetime.context_timestamp(self, att.check_out)
-                check_out_float = check_out_local.hour + check_out_local.minute / 60.0
+                check_out_dt = att.check_out.replace(tzinfo=pytz.UTC).astimezone(tz_wita)
+                check_out_float = check_out_dt.hour + check_out_dt.minute / 60.0
                 diff_out = (std_out - check_out_float) * 60.0
                 if diff_out > 1:
                     if diff_out <= 30: res['pc1'] += 1; res['total_pct'] += 0.5
