@@ -3,6 +3,7 @@ from odoo import http, fields, models
 from odoo.http import request
 import logging, traceback
 from datetime import datetime
+import pytz
 
 _logger = logging.getLogger(__name__)
 
@@ -134,15 +135,33 @@ class ZKTecoADMSController(http.Controller):
         if not employee:
             _logger.warning("PIN %s tidak terdaftar di Karyawan manapun!", zk_pin)
             return
+
+        # Konversi waktu lokal mesin ke UTC (karena Odoo menyimpan Datetime dalam UTC)
+        try:
+            device_tz_str = device.tz or 'Asia/Makassar'
+            local_tz = pytz.timezone(device_tz_str)
+            local_dt = local_tz.localize(att_time, is_dst=None)
+            utc_dt = local_dt.astimezone(pytz.utc).replace(tzinfo=None)
+        except Exception:
+            utc_dt = att_time
         
-        _logger.info("Mencatat absen untuk: %s (PIN: %s) pada %s", employee.name, zk_pin, att_time)
+        _logger.info("Mencatat absen untuk: %s (PIN: %s) pada %s (UTC: %s)", employee.name, zk_pin, att_time, utc_dt)
         open_att = Attendance.search([('employee_id', '=', employee.id), ('check_out', '=', False)], limit=1)
         if open_att:
             # Jika selisih lebih dari 2 menit, catat sebagai Check Out
-            if (att_time - open_att.check_in).total_seconds() > 120:
-                open_att.check_out = att_time
+            if (utc_dt - open_att.check_in).total_seconds() > 120:
+                vals = {'check_out': utc_dt}
+                if 'out_mode' in Attendance._fields:
+                    vals['out_mode'] = 'technical'
+                open_att.write(vals)
         else:
-            Attendance.create({'employee_id': employee.id, 'check_in': att_time})
+            vals = {
+                'employee_id': employee.id,
+                'check_in': utc_dt,
+            }
+            if 'in_mode' in Attendance._fields:
+                vals['in_mode'] = 'technical'
+            Attendance.create(vals)
 
     @http.route(['/iclock/getrequest'], type='http', auth="none", csrf=False)
     def iclock_getrequest(self, **kwargs):

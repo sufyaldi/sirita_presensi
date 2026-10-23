@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytz
 from odoo import models, fields
 
 class ZKDevice(models.Model):
@@ -9,6 +10,13 @@ class ZKDevice(models.Model):
     serial_number = fields.Char(string='Serial Number (SN)', required=True, help="Harus sama persis dengan SN di hardware ZKTeco")
     last_seen = fields.Datetime(string='Terakhir Online', readonly=True)
     is_active = fields.Boolean(string='Aktif Menerima Data', default=True)
+    tz = fields.Selection(
+        lambda self: [(tz, tz) for tz in pytz.all_timezones],
+        string='Zona Waktu Mesin',
+        default='Asia/Makassar',
+        required=True,
+        help="Zona waktu tempat mesin absensi berada (misal Asia/Makassar untuk WITA, Asia/Jakarta untuk WIB)"
+    )
     
     # Smart button counter
     queue_count = fields.Integer(compute='_compute_queue_count')
@@ -111,6 +119,7 @@ class ZKDevice(models.Model):
             }
         }
 
-    _sql_constraints = [
-        ('unique_serial_number', 'unique(serial_number)', 'Mesin dengan Serial Number ini sudah terdaftar!')
-    ]
+    _sql_unique_serial_number = models.Constraint(
+        'UNIQUE(serial_number)',
+        'Mesin dengan Serial Number ini sudah terdaftar!'
+    )

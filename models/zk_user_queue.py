@@ -17,9 +17,10 @@ class ZKUserQueue(models.Model):
     
     employee_id = fields.Many2one('hr.employee', string='Mapped Employee')
 
-    _sql_constraints = [
-        ('unique_pin_device', 'unique(zk_pin, device_id)', 'PIN and Device must be unique!')
-    ]
+    _sql_unique_pin_device = models.Constraint(
+        'UNIQUE(zk_pin, device_id)',
+        'PIN and Device must be unique!'
+    )
 
     def action_map_to_employee(self):
         """Map back to employee or create new if not found"""

@@ -1,0 +1,7 @@
+id,name,model_id,group_id/id,operation,domain
+access_zkteco_device_admin,zkteco.device,zkteco.device,base.group_system,crud,
+access_zkteco_command_admin,zkteco.command,zkteco.command,base.group_system,crud,
+access_zkteco_user_queue_admin,zkteco.user.queue,zkteco.user.queue,base.group_system,crud,
+access_zkteco_device_user,zkteco.device,zkteco.device,hr_attendance.group_hr_attendance_user,crud,
+access_zkteco_command_user,zkteco.command,zkteco.command,hr_attendance.group_hr_attendance_user,crud,
+access_zkteco_user_queue_user,zkteco.user.queue,zkteco.user.queue,hr_attendance.group_hr_attendance_user,crud,

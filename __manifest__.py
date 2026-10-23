@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'SIRITA - ZKTeco Integrator',
-    'version': '1.0',
+    'version': '20.0.1.0.0',
     'category': 'Human Resources',
     'summary': 'Menerima Push Attendance Log melalui protokol ADMS ZKTeco & Tarik Data User',
     'description': """
@@ -16,7 +16,7 @@
     'author': 'SIRITA | sufyaldys@gmail.com',
     'depends': ['base', 'hr', 'hr_attendance'],
     'data': [
-        'security/ir.model.access.csv',
+        'security/ir.access.csv',
         'views/menu_views.xml',
         'views/zk_user_queue_view.xml',
         'views/zk_command_views.xml',

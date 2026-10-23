@@ -28,6 +28,7 @@
                     <group>
                         <group>
                             <field name="serial_number"/>
+                            <field name="tz"/>
                         </group>
                         <group>
                             <field name="last_seen" widget="datetime"/>
