@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="grade_17" model="tukin.grade">
+            <field name="grade">17</field>
+            <field name="name">Grade 17</field>
+            <field name="pagu_tukin">29085000</field>
+        </record>
+        <record id="grade_16" model="tukin.grade">
+            <field name="grade">16</field>
+            <field name="name">Grade 16</field>
+            <field name="pagu_tukin">20695000</field>
+        </record>
+        <record id="grade_15" model="tukin.grade">
+            <field name="grade">15</field>
+            <field name="name">Grade 15</field>
+            <field name="pagu_tukin">14721000</field>
+        </record>
+        <record id="grade_14" model="tukin.grade">
+            <field name="grade">14</field>
+            <field name="name">Grade 14</field>
+            <field name="pagu_tukin">11670000</field>
+        </record>
+        <record id="grade_13" model="tukin.grade">
+            <field name="grade">13</field>
+            <field name="name">Grade 13</field>
+            <field name="pagu_tukin">8562000</field>
+        </record>
+        <record id="grade_12" model="tukin.grade">
+            <field name="grade">12</field>
+            <field name="name">Grade 12</field>
+            <field name="pagu_tukin">7271000</field>
+        </record>
+        <record id="grade_11" model="tukin.grade">
+            <field name="grade">11</field>
+            <field name="name">Grade 11</field>
+            <field name="pagu_tukin">5183000</field>
+        </record>
+        <record id="grade_10" model="tukin.grade">
+            <field name="grade">10</field>
+            <field name="name">Grade 10</field>
+            <field name="pagu_tukin">4551000</field>
+        </record>
+        <record id="grade_9" model="tukin.grade">
+            <field name="grade">9</field>
+            <field name="name">Grade 9</field>
+            <field name="pagu_tukin">3781000</field>
+        </record>
+        <record id="grade_8" model="tukin.grade">
+            <field name="grade">8</field>
+            <field name="name">Grade 8</field>
+            <field name="pagu_tukin">3319000</field>
+        </record>
+        <record id="grade_7" model="tukin.grade">
+            <field name="grade">7</field>
+            <field name="name">Grade 7</field>
+            <field name="pagu_tukin">2928000</field>
+        </record>
+        <record id="grade_6" model="tukin.grade">
+            <field name="grade">6</field>
+            <field name="name">Grade 6</field>
+            <field name="pagu_tukin">2702000</field>
+        </record>
+        <record id="grade_5" model="tukin.grade">
+            <field name="grade">5</field>
+            <field name="name">Grade 5</field>
+            <field name="pagu_tukin">2493000</field>
+        </record>
+        <record id="grade_4" model="tukin.grade">
+            <field name="grade">4</field>
+            <field name="name">Grade 4</field>
+            <field name="pagu_tukin">2350000</field>
+        </record>
+        <record id="grade_3" model="tukin.grade">
+            <field name="grade">3</field>
+            <field name="name">Grade 3</field>
+            <field name="pagu_tukin">2350000</field>
+        </record>
+        <record id="grade_2" model="tukin.grade">
+            <field name="grade">2</field>
+            <field name="name">Grade 2</field>
+            <field name="pagu_tukin">2089000</field>
+        </record>
+        <record id="grade_1" model="tukin.grade">
+            <field name="grade">1</field>
+            <field name="name">Grade 1</field>
+            <field name="pagu_tukin">1968000</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Paper Format (Landscape A4) -->
+    <record id="paperformat_tukin_landscape_v2" model="report.paperformat">
+        <field name="name">Tukin Landscape A4 V2</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_spacing">5</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_tukin_matrix_v2" model="ir.actions.report">
+        <field name="name">Rekap Daftar Hadir (Style Excel)</field>
+        <field name="model">tukin.calculation</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sirita_zkteco.report_tukin_matrix_v2_template</field>
+        <field name="print_report_name">'Rekap_Hadir_%s_%s' % (object.month, object.year)</field>
+        <field name="binding_model_id" ref="sirita_zkteco.model_tukin_calculation"/>
+        <field name="paperformat_id" ref="sirita_zkteco.paperformat_tukin_landscape_v2"/>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_tukin_matrix_v2_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <style>
+                    .table-matrix { width: 100%; border-collapse: collapse; font-family: Arial, sans-serif; }
+                    .table-matrix th, .table-matrix td { border: 1px solid black; text-align: center; padding: 1px; font-size: 6px; line-height: 1.1; }
+                    .header-top { text-align: center; margin-bottom: 5px; }
+                    .header-top h4 { margin: 0; padding: 0; font-weight: bold; font-size: 10px; }
+                    .header-top p { margin: 0; font-size: 8px; }
+                    .bg-grey { background-color: #d9d9d9; font-weight: bold; }
+                    .val-box { height: 8px; border-bottom: 0.1px solid #ddd; }
+                    .nama-nip { text-align: left; padding-left: 3px !important; width: 100px; font-weight: bold; }
+                    .col-tanggal { width: 18px; }
+                </style>
+
+                <div class="page">
+                    <!-- Custom Header IAIN -->
+                    <div class="header-top">
+                        <table style="width: 100%; border:0;">
+                            <tr>
+                                <td style="width: 10%; text-align: left; border:0;">
+                                    <img t-if="res_company.logo" t-att-src="image_data_uri(res_company.logo)" style="max-height: 50px;"/>
+                                </td>
+                                <td style="width: 90%; text-align: center; border:0;">
+                                    <h4>INSTITUT AGAMA ISLAM NEGERI (IAIN) PAREPARE</h4>
+                                    <p>Jalan Amal Bhakti No. 8 Soreang, Kota Parepare 91132 Telepon (0421) 21307</p>
+                                    <p>Website: www.iainpare.ac.id, Email: mail@iainpare.ac.id</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <h5 style="text-align: center; text-decoration: underline; margin-top: 5px; font-weight: bold; font-size: 9px;">REKAP DAFTAR HADIR PEGAWAI</h5>
+                        <p style="text-align: left; font-weight: bold;">BULAN : <t t-set="months" t-value="dict(doc._fields['month'].selection)"/><t t-esc="months.get(doc.month, '').upper()"/> <t t-esc="doc.year"/></p>
+                    </div>
+
+                    <t t-set="day_range" t-value="range(1, 32)"/>
+                    
+                    <table class="table-matrix">
+                        <thead>
+                            <tr class="bg-grey">
+                                <th rowspan="2" style="width: 20px;">NO</th>
+                                <th rowspan="2">NAMA<br/>NIP</th>
+                                <th colspan="31">T A N G G A L</th>
+                                <th colspan="7">TIDAK HADIR</th>
+                                <th rowspan="2" style="font-size: 5px;">JML HR<br/>KERJA</th>
+                                <th rowspan="2" style="font-size: 5px;">JML TK<br/>HADIR</th>
+                                <th rowspan="2" style="font-size: 5px;">JML<br/>HADIR</th>
+                            </tr>
+                            <tr class="bg-grey" style="font-size: 5px;">
+                                <t t-foreach="day_range" t-as="day">
+                                    <th class="col-tanggal">
+                                        <t t-esc="day"/><br/>
+                                        Jam Dtg<br/>
+                                        Istirahat<br/>
+                                        Selesai<br/>
+                                        Jam Plg
+                                    </th>
+                                </t>
+                                <th style="width:10px;">S</th>
+                                <th style="width:10px;">I</th>
+                                <th style="width:10px;">ISM</th>
+                                <th style="width:10px;">C</th>
+                                <th style="width:10px;">TB</th>
+                                <th style="width:10px;">DL</th>
+                                <th style="width:10px;">TK</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="idx" t-value="1"/>
+                            <t t-foreach="doc.line_ids" t-as="line">
+                                <tr>
+                                    <td><t t-esc="idx"/></td>
+                                    <td class="nama-nip">
+                                        <t t-set="full_name" t-value="''"/>
+                                        <t t-if="line.employee_id.gelar_depan"><t t-set="full_name" t-value="line.employee_id.gelar_depan + ' '"/></t>
+                                        <t t-set="full_name" t-value="full_name + line.employee_id.name"/>
+                                        <t t-if="line.employee_id.gelar_belakang"><t t-set="full_name" t-value="full_name + ', ' + line.employee_id.gelar_belakang"/></t>
+                                        <t t-esc="full_name"/><br/>
+                                        NIP. <t t-esc="line.employee_id.barcode or '-'"/>
+                                    </td>
+                                    
+                                    <t t-set="hadir_count" t-value="0"/>
+                                    <t t-foreach="day_range" t-as="day">
+                                        <td>
+                                            <t t-set="att_day" t-value="line.employee_id.attendance_ids.filtered(lambda a: fields.Date.to_date(a.check_in).day == day and fields.Date.to_date(a.check_in).month == int(doc.month) and fields.Date.to_date(a.check_in).year == int(doc.year))"/>
+                                            <t t-if="att_day">
+                                                <t t-set="att" t-value="att_day[0]"/>
+                                                <div class="val-box" style="color: blue;"><t t-esc="att.check_in.strftime('%H.%M') if att.check_in else ''"/></div>
+                                                <div class="val-box">-</div>
+                                                <div class="val-box">-</div>
+                                                <div class="val-box" style="color: darkred;"><t t-esc="att.check_out.strftime('%H.%M') if att.check_out else ''"/></div>
+                                                <t t-set="hadir_count" t-value="hadir_count + 1"/>
+                                            </t>
+                                            <t t-else="">
+                                                <div class="val-box"> </div>
+                                                <div class="val-box"> </div>
+                                                <div class="val-box"> </div>
+                                                <div class="val-box"> </div>
+                                            </t>
+                                        </td>
+                                    </t>
+                                    
+                                    <!-- Rekap Izin/Alpha -->
+                                    <td>-</td> <!-- S -->
+                                    <td>-</td> <!-- I -->
+                                    <td>-</td> <!-- ISM -->
+                                    <td>-</td> <!-- C -->
+                                    <td>-</td> <!-- TB -->
+                                    <td>-</td> <!-- DL -->
+                                    <td><t t-esc="line.alpha_count if line.alpha_count > 0 else '-'"/></td> <!-- TK -->
+                                    
+                                    <td>20</td> <!-- Jml Hari Kerja -->
+                                    <td><t t-esc="20 - hadir_count if (20-hadir_count) > 0 else '-'"/></td>
+                                    <td><t t-esc="hadir_count"/></td>
+                                </tr>
+                                <t t-set="idx" t-value="idx + 1"/>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Signature -->
+                    <div style="margin-top: 10px; font-size: 7px;">
+                        <table style="width: 100%; border: 0;">
+                            <tr>
+                                <td style="width: 30%; border: 0; padding-top: 20px;">
+                                    Keterangan:<br/>
+                                    S : Sakit | I : Izin | ISM : Izin Sakit/Keluarga | C : Cuti | TB : Tugas Belajar | DL : Dinas Luar | TK : Tanpa Keterangan
+                                </td>
+                                <td style="width: 35%; border: 0; text-align: center;">
+                                    Mengetahui,<br/>Rektor,
+                                    <br/>
+                                    <t t-if="doc.rektor_id">
+                                        <t t-set="r_name" t-value="''"/>
+                                        <t t-if="doc.rektor_id.gelar_depan"><t t-set="r_name" t-value="doc.rektor_id.gelar_depan + ' '"/></t>
+                                        <t t-set="r_name" t-value="r_name + doc.rektor_id.name"/>
+                                        <t t-if="doc.rektor_id.gelar_belakang"><t t-set="r_name" t-value="r_name + ', ' + doc.rektor_id.gelar_belakang"/></t>
+
+                                        <div t-attf-style="width:50px; height:50px; margin: 5px auto;">
+                                            <span t-out="'TTE Rektor: %s NIP: %s' % (r_name, doc.rektor_id.barcode or '')" t-options="{'widget': 'barcode', 'symbology': 'QR', 'width': 200, 'height': 200, 'img_style': 'width:50px;height:50px;'}"/>
+                                        </div>
+                                        <strong><t t-esc="r_name"/></strong><br/>
+                                        NIP. <t t-esc="doc.rektor_id.barcode or '-'"/>
+                                    </t>
+                                    <t t-else="">
+                                        <br/><br/><br/><br/>
+                                        <strong>( ..................... )</strong>
+                                    </t>
+                                </td>
+                                <td style="width: 35%; border: 0; text-align: center;">
+                                    Parepare, <t t-esc="months.get(doc.month, '').upper()"/> <t t-esc="doc.year"/><br/>
+                                    Kepala Biro AUAK,
+                                    <br/>
+                                    <t t-if="doc.kabiro_id">
+                                        <t t-set="k_name" t-value="''"/>
+                                        <t t-if="doc.kabiro_id.gelar_depan"><t t-set="k_name" t-value="doc.kabiro_id.gelar_depan + ' '"/></t>
+                                        <t t-set="k_name" t-value="k_name + doc.kabiro_id.name"/>
+                                        <t t-if="doc.kabiro_id.gelar_belakang"><t t-set="k_name" t-value="k_name + ', ' + doc.kabiro_id.gelar_belakang"/></t>
+
+                                        <div t-attf-style="width:50px; height:50px; margin: 5px auto;">
+                                            <span t-out="'TTE Kabiro: %s NIP: %s' % (k_name, doc.kabiro_id.barcode or '')" t-options="{'widget': 'barcode', 'symbology': 'QR', 'width': 200, 'height': 200, 'img_style': 'width:50px;height:50px;'}"/>
+                                        </div>
+                                        <strong><t t-esc="k_name"/></strong><br/>
+                                        NIP. <t t-esc="doc.kabiro_id.barcode or '-'"/>
+                                    </t>
+                                    <t t-else="">
+                                        <br/><br/><br/><br/>
+                                        <strong>( ..................... )</strong>
+                                    </t>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

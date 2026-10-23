@@ -1,8 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Tambahkan menu ZKTeco ke bawah menu Absensi Utama (Attendance) Odoo -->
+    <!-- 1. ROOT SUBMENU: Mesin ZKTeco (ADMS) di bawah Presensi Utama -->
     <menuitem id="menu_zkteco_root" 
               name="Mesin ZKTeco (ADMS)"
               parent="hr_attendance.menu_hr_attendance_root" 
-              sequence="100"/>
+              sequence="80"/>
+
+    <!-- 2. ROOT SUBMENU: Tunjangan Kinerja (PMA 11/2019) di bawah Presensi Utama -->
+    <menuitem id="menu_tukin_root" 
+              name="Tukin Kemenag" 
+              parent="hr_attendance.menu_hr_attendance_root" 
+              sequence="90"/>
+
+    <!-- Submenu Operasional Tukin -->
+    <menuitem id="menu_tukin_ops" 
+              name="Operasional Tukin" 
+              parent="menu_tukin_root" 
+              sequence="10"/>
+
+    <menuitem id="menu_tukin_calc" 
+              name="Rekap Tukin Bulanan" 
+              parent="menu_tukin_ops" 
+              action="action_tukin_calculation" 
+              sequence="10"/>
+
+    <!-- Submenu Konfigurasi Tukin -->
+    <menuitem id="menu_tukin_config" 
+              name="Konfigurasi" 
+              parent="menu_tukin_root" 
+              sequence="20"/>
+
+    <menuitem id="menu_tukin_grade" 
+              name="Kelas Jabatan (Grade)" 
+              parent="menu_tukin_config" 
+              action="action_tukin_grade" 
+              sequence="10"/>
 </odoo>

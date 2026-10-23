@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_tukin_calculation_tree" model="ir.ui.view">
+        <field name="name">tukin.calculation.tree</field>
+        <field name="model">tukin.calculation</field>
+        <field name="arch" type="xml">
+            <list string="Rekapitulasi Tukin Bulanan">
+                <field name="name"/>
+                <field name="month"/>
+                <field name="year"/>
+                <field name="status" widget="badge" 
+                       decoration-info="status == 'draft'" 
+                       decoration-success="status == 'done'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_tukin_calculation_form" model="ir.ui.view">
+        <field name="name">tukin.calculation.form</field>
+        <field name="model">tukin.calculation</field>
+        <field name="arch" type="xml">
+            <form string="Rekapitulasi Tukin">
+                <header>
+                    <button name="action_calculate" string="Proses Perhitungan" type="object" class="oe_highlight" invisible="status != 'draft'"/>
+                    <button name="%(sirita_zkteco.action_report_tukin_matrix_v2)d" string="Cetak Rekap (Matrix V2)" type="action" icon="fa-print"/>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="month"/>
+                            <field name="year"/>
+                        </group>
+                        <group string="Pejabat Penandatangan">
+                            <field name="rektor_id" options="{'no_create': True}"/>
+                            <field name="kabiro_id" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Detail Perhitungan Pegawai" name="details">
+                            <field name="line_ids" readonly="1">
+                                <list>
+                                    <field name="employee_id"/>
+                                    <field name="grade_name"/>
+                                    <field name="pagu_grade"/>
+                                    <field name="base_tukin"/>
+                                    <field name="tl1_count" sum="Total TL1"/>
+                                    <field name="tl2_count" sum="Total TL2"/>
+                                    <field name="tl3_count" sum="Total TL3"/>
+                                    <field name="tl4_count" sum="Total TL4"/>
+                                    <field name="pc1_count" sum="Total PC1"/>
+                                    <field name="pc2_count" sum="Total PC2"/>
+                                    <field name="presence_deduction_pct" widget="percentage" string="Total Pot. (%)"/>
+                                    <field name="final_tukin" sum="Total Tukin"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_tukin_calculation" model="ir.actions.act_window">
+        <field name="name">Rekap Tukin Bulanan</field>
+        <field name="res_model">tukin.calculation</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

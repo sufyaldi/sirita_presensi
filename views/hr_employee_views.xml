@@ -8,6 +8,23 @@
             <xpath expr="//field[@name='pin']" position="after">
                 <field name="zk_pin" string="API/ADMS PIN (Mesin Finger)"/>
             </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page name="page_tukin" string="Data Tukin (PMA 11/2019)">
+                    <group string="Profil Nama (Dinamis)">
+                        <field name="gelar_depan" placeholder="Contoh: Prof. Dr."/>
+                        <field name="gelar_belakang" placeholder="Contoh: M.Ag."/>
+                    </group>
+                    <group string="Kelas Jabatan">
+                        <field name="tukin_grade_id" options="{'no_create': True}"/>
+                    </group>
+                    <group string="Status Khusus (Kemenag)">
+                        <field name="is_lecturer"/>
+                        <field name="has_serdos" invisible="not is_lecturer"/>
+                        <field name="tpd_amount" invisible="not has_serdos"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                </page>
+            </xpath>
         </field>
     </record>
 </odoo>

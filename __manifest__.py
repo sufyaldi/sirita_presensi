@@ -1,29 +1,38 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'SIRITA - ZKTeco Integrator',
+    'name': 'SIRITA - Presensi & Tukin Terintegrasi (ZKTeco ADMS & PMA 11/2019)',
     'version': '20.0.1.0.0',
     'category': 'Human Resources',
-    'summary': 'Menerima Push Attendance Log melalui protokol ADMS ZKTeco & Tarik Data User',
+    'summary': 'Menerima Push Log ZKTeco ADMS, Mapping Karyawan & Perhitungan Tukin Kemenag',
     'description': """
-        Modul khusus penerima data Push Kehadiran dari mesin sidik jari/wajah ZKTeco (seperti X100-C, MB series) menggunakan metode ADMS/iClock.
-        Fitur:
-        - HTTP Controller Endpoint (/iclock/cdata) Publik
-        - Registrasi Serial Number Mesin ZKTeco (Keamanan Whitelist)
-        - Mapping PIN Mesin ke PIN hr.employee
-        - Tarik/Pull Daftar User terdaftar di mesin ke Odoo (Tabel Antrean)
-        - Auto Create hr.attendance records.
+        Modul Lengkap Presensi & Tukin IAIN Parepare:
+        1. ADMS ZKTeco Integrator:
+           - HTTP Controller Endpoint (/iclock/cdata)
+           - Registrasi Serial Number Mesin ZKTeco
+           - Antrean Sinkronisasi User & Sidik Jari
+           - Auto-create hr.attendance
+        2. Tunjangan Kinerja Kemenag (PMA No. 11 Tahun 2019):
+           - Master Kelas Jabatan (Grade 1 - 17) & Pagu Tukin
+           - Pengaturan Khusus Dosen (Non-Serdos 50%, Serdos Selisih TPD)
+           - Analisis Keterlambatan TL1-TL4 & Pulang Cepat PC1-PC4 otomatis dari hr.attendance
+           - Cetak Rekapitulasi Matriks Bulanan (Style Excel Landscape PDF)
     """,
     'author': 'SIRITA | sufyaldys@gmail.com',
-    'depends': ['base', 'hr', 'hr_attendance'],
+    'depends': ['base', 'hr', 'hr_attendance', 'resource'],
     'data': [
         'security/ir.access.csv',
-        'views/menu_views.xml',
+        'data/tukin_grade_data.xml',
+        'report/tukin_report_templates_v2.xml',
+        'report/tukin_report_templates.xml',
         'views/zk_user_queue_view.xml',
         'views/zk_command_views.xml',
         'views/zk_device_views.xml',
         'views/hr_employee_views.xml',
+        'views/hr_grade_views.xml',
+        'views/tukin_calculation_views.xml',
+        'views/menu_views.xml',
     ],
     'installable': True,
-    'application': False,
+    'application': True,
     'license': 'GPL-3',
 }
