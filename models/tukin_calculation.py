@@ -148,6 +148,27 @@ class TukinCalculation(models.Model):
                     elif diff_out <= 60: res['pc2'] += 1; res['total_pct'] += 1.0
                     elif diff_out <= 90: res['pc3'] += 1; res['total_pct'] += 1.25
                     else: res['pc4'] += 1; res['total_pct'] += 1.5
+
+        # Analisis Cuti / Dinas Luar Kemenag (PMA No. 11/2019) dari model hr.leave
+        leaves = self.env['hr.leave'].search([
+            ('employee_id', '=', employee.id),
+            ('state', 'in', ['validate', 'confirm', 'draft']),
+            ('request_date_from', '<=', end_date),
+            ('request_date_to', '>=', start_date)
+        ])
+        for lv in leaves:
+            leave_code = lv.work_entry_type_id.code if lv.work_entry_type_id else ''
+            days_count = int(lv.number_of_days or 1)
+            # Ketentuan potongan PMA 11/2019:
+            if leave_code == 'LEAVE_SAKIT':
+                res['total_pct'] += (1.0 * days_count) # Cuti Sakit 1% / hari
+            elif leave_code == 'LEAVE_BERSALIN':
+                res['total_pct'] += (1.0 * days_count) # Cuti Bersalin 1% / hari
+            elif leave_code in ('LEAVE_ALASAN_PENTING', 'LEAVE_BESAR'):
+                res['total_pct'] += (1.5 * days_count) # Cuti Alasan Penting / Cuti Besar 1.5% / hari
+            elif leave_code in ('LEAVE_DL', 'LEAVE_TAHUNAN'):
+                pass # Dinas Luar & Cuti Tahunan tidak dipotong (0%)
+
         return res
 
     def get_report_data(self):
