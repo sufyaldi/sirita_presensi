@@ -33,6 +33,36 @@ class TukinCalculation(models.Model):
 
     line_ids = fields.One2many('tukin.calculation.line', 'calculation_id', string='Detail Karyawan')
     
+    @api.model
+    def cron_monthly_auto_generate_tukin(self):
+        """Cron: Membuat otomatis draf rekapitulasi Tukin bulanan jika belum ada untuk bulan berjalan"""
+        today = date.today()
+        month_str = str(today.month)
+        year_str = str(today.year)
+
+        existing = self.search([
+            ('month', '=', month_str),
+            ('year', '=', year_str)
+        ], limit=1)
+
+        if not existing:
+            # Ambil penandatangan default (Rektor & Kabiro AUAK jika ada)
+            Employee = self.env['hr.employee']
+            rektor = Employee.search([('job_title', 'ilike', 'Rektor')], limit=1)
+            kabiro = Employee.search(['|', ('job_title', 'ilike', 'Kepala Biro'), ('job_title', 'ilike', 'Kabiro')], limit=1)
+
+            rec = self.create({
+                'month': month_str,
+                'year': year_str,
+                'status': 'draft',
+                'rektor_id': rektor.id if rektor else False,
+                'kabiro_id': kabiro.id if kabiro else False,
+            })
+            # Langsung kalkulasikan baris awal
+            rec.action_calculate()
+            return rec.id
+        return existing.id
+    
     @api.depends('month', 'year')
     def _compute_name(self):
         for rec in self:

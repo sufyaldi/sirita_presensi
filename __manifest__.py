@@ -22,6 +22,7 @@
     'data': [
         'security/ir.access.csv',
         'data/tukin_grade_data.xml',
+        'data/ir_cron_data.xml',
         'report/tukin_report_templates_v2.xml',
         'report/tukin_report_templates.xml',
         'views/zk_user_queue_view.xml',

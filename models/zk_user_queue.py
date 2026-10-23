@@ -82,3 +82,35 @@ class ZKUserQueue(models.Model):
                 new_emp.write({'zk_pin': rec.zk_pin})
         
         return super(ZKUserQueue, self).write(vals)
+
+    @api.model
+    def cron_auto_process_queue(self):
+        """Cron: Memproses antrean user baru yang belum terpetakan ke Karyawan"""
+        new_queues = self.search([('status', '=', 'new')])
+        if not new_queues:
+            return True
+
+        Employee = self.env['hr.employee']
+        mapped_count = 0
+
+        for q in new_queues:
+            # 1. Coba cocokkan berdasarkan zk_pin
+            employee = Employee.search([('zk_pin', '=', q.zk_pin)], limit=1)
+
+            # 2. Coba cocokkan berdasarkan nama (Exact atau Normalisasi)
+            if not employee and q.name:
+                employee = Employee.search([('name', '=', q.name)], limit=1)
+                if not employee:
+                    # Case insensitive / strip
+                    employee = Employee.search([('name', '=ilike', q.name.strip())], limit=1)
+
+            if employee:
+                if not employee.zk_pin:
+                    employee.write({'zk_pin': q.zk_pin})
+                q.write({
+                    'employee_id': employee.id,
+                    'status': 'mapped'
+                })
+                mapped_count += 1
+
+        return mapped_count
